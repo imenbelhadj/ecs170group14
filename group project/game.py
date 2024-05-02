@@ -4,62 +4,71 @@ from enum import Enum
 from collections import namedtuple
 import numpy as np
 
+# Initialize Pygame
 pygame.init()
+# Load font for displaying score
 font = pygame.font.Font('arial.ttf', 25)
-#font = pygame.font.SysFont('arial', 25)
 
+# Define Direction enumeration for snake movement
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
     UP = 3
     DOWN = 4
 
+# Define a Point named tuple for representing coordinates
 Point = namedtuple('Point', 'x, y')
 
-# rgb colors
+# Define RGB colors
 WHITE = (255, 255, 255)
 RED = (200,0,0)
 BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 BLACK = (0,0,0)
 
+# Set the size of each block in the game grid
 BLOCK_SIZE = 20
+# Set the speed of the game (frames per second)
 SPEED = 40
 
+# Snake game class
 class SnakeGameAI:
 
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
-        # init display
+        # Initialize display
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
+        # Reset the game state
         self.reset()
 
-
+    # Reset the game state
     def reset(self):
-        # init game state
+        # Set initial direction of the snake
         self.direction = Direction.RIGHT
 
+        # Initialize snake with three segments
         self.head = Point(self.w/2, self.h/2)
         self.snake = [self.head,
                       Point(self.head.x-BLOCK_SIZE, self.head.y),
                       Point(self.head.x-(2*BLOCK_SIZE), self.head.y)]
 
+        # Reset score and place food
         self.score = 0
         self.food = None
         self._place_food()
         self.frame_iteration = 0
 
-
+    # Place food at a random location on the grid
     def _place_food(self):
         x = random.randint(0, (self.w-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
         y = random.randint(0, (self.h-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
         self.food = Point(x, y)
+        # If food is placed on the snake, place it again
         if self.food in self.snake:
             self._place_food()
-
 
     def play_step(self, action):
         #action as an argument
