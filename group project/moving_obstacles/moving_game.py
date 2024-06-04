@@ -75,7 +75,7 @@ class SnakeGameAI:
         self.score = 0
         self.food = None
         self.special = None
-        self.obstacle = None  # Initialize obstacle
+        self.obstacle = None  # list to hold regular obstacles
         self._place_food()
         self._place_obstacle()
         self._place_special()
@@ -128,7 +128,7 @@ class SnakeGameAI:
 
         if self.is_collision() or self.frame_iteration > 100 * len(self.snake):
             game_over = True
-            reward = -10
+            reward = -1
             return reward, game_over, self.score
 
         # Place new food or just move
@@ -139,8 +139,8 @@ class SnakeGameAI:
 
         # Collect special element
         elif self.head == self.special:
-            self.score += 1
-            reward = 5
+            self.score += 4
+            reward = 8
             self.special_active = 3  # Activate special effect for the next 3 games
             self._place_special()
         
@@ -149,22 +149,20 @@ class SnakeGameAI:
             if self.special_active > 0:
                 reward = 0
             else:
+                self.score -= 10 #higher penalty for crashing moving obstacle
+                reward = -10
+                self.snake.pop(0)
+
+        # Check for obstacle collision without ending the game
+        elif self.head == self.obstacle:
+            if self.special_active > 0:
+                reward = 0  # No penalty
+            else:
                 self.score -= 1
-                reward = -3
+                reward = -1
                 self.snake.pop(0)
         else:
             self.snake.pop()
-
-        # Check for obstacle collision without ending the game
-        # elif self.head == self.obstacle:
-        #     if self.special_active > 0:
-        #         reward = 0  # No penalty
-        #     else:
-        #         self.score -= 1
-        #         reward = -1
-        #         self.snake.pop(0)
-        # else:
-        #     self.snake.pop()
 
         if game_over and self.special_active > 0:
             self.special_active -= 1  # Decrease the active game counter
@@ -185,7 +183,11 @@ class SnakeGameAI:
         # Hits itself
         if pt in self.snake[1:]:
             return True
-        # Hits obstacle
+
+        #hits obstacle:
+        if pt == self.obstacle:
+            return True
+        # Hits moving obstacle
         if pt == self.moving_obstacle.position:
             return True
         return False
@@ -198,7 +200,7 @@ class SnakeGameAI:
             pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
-        # pygame.draw.rect(self.display, PURPLE, pygame.Rect(self.obstacle.x, self.obstacle.y, BLOCK_SIZE, BLOCK_SIZE))
+        pygame.draw.rect(self.display, PURPLE, pygame.Rect(self.obstacle.x, self.obstacle.y, BLOCK_SIZE, BLOCK_SIZE))
         pygame.draw.rect(self.display, LIGHT_BLUE, pygame.Rect(self.special.x, self.special.y, BLOCK_SIZE, BLOCK_SIZE))
         pygame.draw.rect(self.display, LIGHT_GREEN, pygame.Rect(self.moving_obstacle.position.x, self.moving_obstacle.position.y, BLOCK_SIZE, BLOCK_SIZE))
 
