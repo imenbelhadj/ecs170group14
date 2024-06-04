@@ -15,7 +15,7 @@ class Agent:
 
     def __init__(self):
         self.n_games = 0
-        self.epsilon = 0 # exploration-exploitation trade-off in RL, a value 0 represnts that doesn't explore (acts greedily) and always chooses the action with the highest predicted value.
+        self.epsilon = 0.05 # exploration-exploitation trade-off in RL, a value 0 represnts that doesn't explore (acts greedily) and always chooses the action with the highest predicted value.
         self.gamma = 0.9 # discount rate, future rewards were discounted by 10% per time
         self.memory = deque(maxlen=MAX_MEMORY) # popleft(), The deque will store the agent's experiences, with new experiences replacing the oldest ones when the deque reaches its maximum capacity.
         self.model = Linear_QNet(15, 256, 3)
@@ -213,4 +213,3 @@ If the game's dynamics change gradually (e.g., increasing speed and block size a
 
 if __name__ == '__main__':
     train()
-
