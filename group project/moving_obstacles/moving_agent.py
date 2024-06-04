@@ -5,6 +5,7 @@ from collections import deque
 from game import SnakeGameAI, Direction, Point
 from model import Linear_QNet, QTrainer
 from helper import plot
+import matplotlib.pyplot as plt
 
 MAX_MEMORY = 100_000  #total number of experiences the agent can remember
 BATCH_SIZE = 1000   #how many of those experiences are used in each iteration
@@ -162,6 +163,20 @@ class Agent:
     Adjust the exploration-exploitation strategy (epsilon) based on the complexity of the game environment and the agent's learning progress.
     """""
 
+def play_itself(agent, n_games=10):
+    scores = []
+    for i in range(n_games):
+        game = SnakeGameAI()
+        score = 0
+        while True:
+            state = agent.get_state(game)
+            final_move = agent.get_action(state)
+            reward, done, score = game.play_step(final_move)
+            if done:
+                scores.append(score)
+                break
+    return scores
+
 
 def train():
     plot_scores = []
@@ -170,8 +185,8 @@ def train():
     record = 0
     agent = Agent()
     game = SnakeGameAI()
-    while True:
-        # get old state
+    while agent.n_games < 200:  #train for 200 games
+         # get old state
         state_old = agent.get_state(game)
 
         # get move
@@ -204,6 +219,16 @@ def train():
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
             plot(plot_scores, plot_mean_scores)
+
+# Play 10 games after training and plot the results
+    scores_after_training = play_itself(agent, n_games=10)
+    print("Scores after training:", scores_after_training)
+    plt.figure()
+    plt.plot(scores_after_training)
+    plt.xlabel('Game')
+    plt.ylabel('Score')
+    plt.title('Scores after Training')
+    plt.show()
 
     """""
 Update the main training loop to handle the new game elements, reward structure, and agent behavior.
