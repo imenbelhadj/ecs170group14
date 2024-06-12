@@ -158,7 +158,7 @@ def train():
     record = 0
     agent = Agent()
     game = SnakeGameAI()
-    while agent.n_games < 10:  #train for 200 games
+    while agent.n_games < 200:  #train for 200 games
          # get old state
         state_old = agent.get_state(game)
 
